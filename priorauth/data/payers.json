@@ -1,0 +1,91 @@
+{
+  "_note": "Mock payers and policies for demo only. 'payer_rule' is the mock payer's hidden review check; 'mock_keywords' only drive the offline mock agent. Neither is shown to the AI model.",
+  "payers": {
+    "acme": {
+      "name": "Acme Health",
+      "auth_required": {"72148": "ACME-RAD-014", "73721": "ACME-RAD-022"},
+      "not_required": ["72100", "73560"]
+    },
+    "northstar": {
+      "name": "Northstar Health Plan",
+      "auth_required": {"73721": "NS-IMG-207", "72148": "NS-IMG-115"},
+      "not_required": ["72100", "73560"]
+    }
+  },
+  "policies": {
+    "ACME-RAD-014": {
+      "payer_id": "acme",
+      "title": "Acme Health Medical Policy ACME-RAD-014: MRI of the Lumbar Spine (CPT 72148)",
+      "summary": "MRI of the lumbar spine is considered medically necessary for low back pain with radiculopathy when ALL of the following criteria are documented in the medical record.",
+      "criteria": [
+        {
+          "id": "L1",
+          "text": "Low back pain and/or radicular symptoms have persisted for at least 6 weeks.",
+          "payer_rule": "\\b(for|over|past|lasting|since)\\s+(about\\s+|approximately\\s+|the\\s+past\\s+)?(([6-9]|[1-9]\\d)\\s*(weeks|wks)|([2-9]|1[0-2])\\s*months?)\\b",
+          "denial_reason": "Duration of symptoms of at least 6 weeks is not documented. A follow-up interval is not evidence of symptom duration.",
+          "mock_keywords": ["months", "persisted"]
+        },
+        {
+          "id": "L2",
+          "text": "Failure of at least 6 weeks of conservative therapy (e.g., physical therapy, NSAIDs), with the duration of therapy documented.",
+          "payer_rule": "\\b([6-9]|[1-9]\\d)\\s*(weeks|wks)\\b",
+          "denial_reason": "Documentation of the duration of conservative therapy (minimum 6 weeks) was not provided.",
+          "mock_keywords": ["physical therapy"],
+          "mock_appeal_keywords": ["completed", "weeks of physical therapy"]
+        },
+        {
+          "id": "L3",
+          "text": "No MRI of the lumbar spine within the previous 12 months.",
+          "payer_rule": "\\bno (prior|previous)\\b",
+          "denial_reason": "Absence of recent lumbar spine imaging is not documented.",
+          "mock_keywords": ["no prior"]
+        }
+      ]
+    },
+    "NS-IMG-207": {
+      "payer_id": "northstar",
+      "title": "Northstar Clinical Guideline NS-IMG-207: MRI of the Knee (CPT 73721)",
+      "summary": "Knee MRI is approved for suspected internal derangement when ALL of the following are documented.",
+      "criteria": [
+        {
+          "id": "K1",
+          "text": "Mechanical symptoms (locking, catching) or instability (giving way) of the knee.",
+          "payer_rule": "lock|catch|giv(es|ing) way|instabil",
+          "denial_reason": "Mechanical symptoms or instability are not documented.",
+          "mock_keywords": ["locking"]
+        },
+        {
+          "id": "K2",
+          "text": "Plain radiographs (X-ray) of the knee completed within the past 6 months.",
+          "payer_rule": "x-?ray|radiograph",
+          "denial_reason": "Recent knee radiographs are not documented.",
+          "mock_keywords": ["radiographs of the right knee"]
+        },
+        {
+          "id": "K3",
+          "text": "At least 4 weeks of conservative treatment (activity modification, home exercise, NSAIDs) without adequate improvement.",
+          "payer_rule": "\\b([4-9]|[1-9]\\d)\\s*(weeks|wks)\\b",
+          "denial_reason": "At least 4 weeks of conservative treatment is not documented.",
+          "mock_keywords": ["for 6 weeks"]
+        }
+      ]
+    },
+    "ACME-RAD-022": {
+      "payer_id": "acme",
+      "title": "Acme Health Medical Policy ACME-RAD-022: MRI of the Knee (CPT 73721)",
+      "summary": "Knee MRI requires documented mechanical symptoms and recent radiographs.",
+      "criteria": [
+        {"id": "AK1", "text": "Mechanical symptoms or instability of the knee.", "payer_rule": "lock|catch|giv(es|ing) way|instabil", "denial_reason": "Mechanical symptoms are not documented.", "mock_keywords": ["locking"]},
+        {"id": "AK2", "text": "Knee radiographs within the past 6 months.", "payer_rule": "x-?ray|radiograph", "denial_reason": "Recent radiographs are not documented.", "mock_keywords": ["radiographs"]}
+      ]
+    },
+    "NS-IMG-115": {
+      "payer_id": "northstar",
+      "title": "Northstar Clinical Guideline NS-IMG-115: MRI of the Lumbar Spine (CPT 72148)",
+      "summary": "Lumbar MRI requires 6 weeks of failed conservative therapy.",
+      "criteria": [
+        {"id": "NL1", "text": "At least 6 weeks of failed conservative therapy, with duration documented.", "payer_rule": "\\b([6-9]|[1-9]\\d)\\s*(weeks|wks)\\b", "denial_reason": "Duration of conservative therapy is not documented.", "mock_keywords": ["physical therapy"]}
+      ]
+    }
+  }
+}
